@@ -159,6 +159,8 @@ internal class DrawView(context: Context) : View(context) {
            //createGraph(listOf(list0.first()), x0 - nodeRadius * 1.6F, y0)
            createGraph(list0.dropLast(1), x0 + nodeRadius * 1.6F, y)
            drawEdge(x0,y0,x0 + nodeRadius * 1.6F, y0)
+
+
        }
 
 

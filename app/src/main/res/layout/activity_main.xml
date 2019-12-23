@@ -12,7 +12,12 @@
             android:layout_height="wrap_content" tools:layout_editor_absoluteY="16dp" android:layout_marginEnd="32dp"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="32dp" android:gravity="center_horizontal"
-            app:layout_constraintHorizontal_bias="0.0">
+            app:layout_constraintHorizontal_bias="0.0" tools:ignore="MissingConstraints">
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Сгенерировать"
+                android:id="@+id/generator"
+        />
+
         <EditText
                 android:layout_width="128dp"
                 android:layout_height="wrap_content"
@@ -43,3 +48,4 @@
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
+

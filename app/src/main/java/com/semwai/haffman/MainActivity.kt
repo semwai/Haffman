@@ -6,6 +6,7 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 import android.content.Intent
 import android.widget.Button
+import java.lang.StringBuilder
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,14 +21,15 @@ class MainActivity : AppCompatActivity() {
 
             list.removeAllViews()
             myMap.clear()
-            val chars = 'a'..'z'
-            val numbers = 1..20
-            for (i in  0..20){
+            val chars = ('a'..'z').toMutableList()
+            val numbers = 1..40
+            for (i in  0..10){
                 val l = chars.shuffled().first()
+                chars.remove(l)
                 val c = numbers.shuffled().first()
                 myMap[l] = c
                 val t = Button(this)
-                t.text = "${c} - ${l}"
+                t.text = "${l} - ${c}"
                 t.setOnClickListener {
                         btn ->
                     myMap.remove(l)
@@ -58,8 +60,11 @@ class MainActivity : AppCompatActivity() {
         }
         drawButton.setOnClickListener {
             val i = Intent(this,drawer::class.java)
-
-            i.putExtra("map", myMap.toString())
+            val s = StringBuilder()
+            myMap.forEach {
+                s.append("${it.key}".repeat(it.value))
+            }
+            i.putExtra("map", s.toString())
             startActivity(i)
         }
     }

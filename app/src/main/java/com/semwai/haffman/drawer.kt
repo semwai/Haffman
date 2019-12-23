@@ -14,15 +14,22 @@ import android.support.v4.content.ContextCompat.getSystemService
 import android.view.Display
 import android.R.attr.y
 import android.R.attr.x
+import android.content.Intent
 import android.support.annotation.ColorInt
 import android.util.Log
+import java.lang.Exception
+import java.sql.Time
+import kotlin.random.Random
 
+
+var haffStr = ""
 
 class drawer : AppCompatActivity() {
-    var i = intent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        var i = intent
+        haffStr = i.getStringExtra("map")
 
         setContentView(DrawView(this))
         val display = windowManager.defaultDisplay
@@ -55,6 +62,8 @@ internal class DrawView(context: Context) : View(context) {
 
     override fun onDraw(cnv: Canvas) {
         canvas = cnv
+        cnv.rotate(90F)
+        cnv.translate(0F,-cnv.width*1.0F)
         canvas!!.drawARGB(80, 102, 204, 255)
         /*
         // первая линия
@@ -88,14 +97,74 @@ internal class DrawView(context: Context) : View(context) {
         for (i in 0..100)
         canvas.drawText("hello", 10f, (i*40).toFloat(),p)
         canvas.drawText("width ${canvas.width} height ${canvas.height}", 40f, 40f,p)*/
-        nodeRadius = (cnv.width + cnv.height) / 35F
-        t.textSize = (cnv.width + cnv.height) / 70F
+        nodeRadius = (width + height) / 36F
+        t.textSize = (width + height) / 88F
 
-        drawNode("abcde", 15, false, 100F, 200F)
+        /*drawNode("abcde", 15, false, 300F, 200F)
         drawNode("ac", 10, true, 150F, 330F)
-        drawEdge(100F,200F,150F,330F)
+        drawEdge(300F,200F,150F,330F)*/
+        val mlist = Haffman(haffStr).getMap().toList().sortedWith(compareBy({ it.second }))
+        var i = 20F
+        for (e in mlist) {
+            cnv.drawText(e.toString(), 0F, i, t)
+            i += 20
+        }
+        createGraph(mlist, height / 2F, 50F)
+
+
     }
 
+   /* fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float) {
+        val list1 = list.filter { it.second.first() == '1' }
+        val list0 = list.filter { it.second.first() == '0' }
+        val y = y0 + nodeRadius*2.5F
+        if (list1.map { it.first }.isNotEmpty())
+            drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - nodeRadius * 1.3F, y)
+        if (list0.map { it.first }.isNotEmpty())
+            drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + nodeRadius * 1.3F, y)
+        if (list1.size > 1) {
+            try{
+                createGraph(list1.subList(1, list0.size - 1), x0 - nodeRadius * 1.3F, y)
+            }
+            catch (e: Exception){}
+        }
+        if (list0.size > 1) {
+            try{
+                createGraph(list0.subList(1, list0.size - 1), x0 + nodeRadius * 1.3F, y)
+            }
+            catch (e: Exception){}
+        }
+
+
+    }*/
+   fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float) {
+       val y = y0 + nodeRadius*2F
+       if (list.size == 1){
+           drawNode(list.first().first.toString(), 0, false, x0, y0  )
+           return
+       }
+       val list1 = list.filter { it.second.first() == '1' }
+       val list0 = list.filter { it.second.first() == '0' }
+
+
+       if (list1.isNotEmpty()){
+           drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - nodeRadius * 1.6F, y0)
+           //createGraph(listOf(list1.first()), x0 + nodeRadius * 1.6F, y0)
+           createGraph(list1.dropLast(1), x0 - nodeRadius * 1.6F, y)
+           drawEdge(x0,y0,x0 - nodeRadius * 1.6F, y)
+       }
+
+       if (list0.isNotEmpty()){
+           drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + nodeRadius * 1.6F, y0)
+           //createGraph(listOf(list0.first()), x0 - nodeRadius * 1.6F, y0)
+           createGraph(list0.dropLast(1), x0 + nodeRadius * 1.6F, y)
+           drawEdge(x0,y0,x0 + nodeRadius * 1.6F, y0)
+       }
+
+
+
+
+   }
     /*
     рисует отдельную вершину
      */
@@ -105,17 +174,18 @@ internal class DrawView(context: Context) : View(context) {
         p.color = Color.parseColor("#008577")
         canvas!!.drawCircle(x, y, nodeRadius, p)
         canvas!!.drawText(text, x - t.textSize * text.length / 4, y + 4, t)
-        canvas!!.drawText(weight.toString(), x + nodeRadius + 2, y + 4, t)
+        //canvas!!.drawText(weight.toString(), x + nodeRadius + 2, y + 4, t)
         canvas!!.drawText(if (point) "1" else "0", x - nodeRadius - 15, y + 4, t)
     }
 
     fun drawEdge(x1: Float, y1: Float, x2: Float, y2: Float) {
         val angle = Math.atan2(y2.toDouble() - y1.toDouble(), x2.toDouble() - x1.toDouble())
         canvas!!.drawLine(
-            x1 + nodeRadius*Math.cos(angle).toFloat(),
-            y1 + nodeRadius*Math.sin(angle).toFloat(),
-            x2 - nodeRadius*Math.cos(angle).toFloat(),
-            y2 - nodeRadius*Math.sin(angle).toFloat(),
-            t)
+            x1 + nodeRadius * Math.cos(angle).toFloat(),
+            y1 + nodeRadius * Math.sin(angle).toFloat(),
+            x2 - nodeRadius * Math.cos(angle).toFloat(),
+            y2 - nodeRadius * Math.sin(angle).toFloat(),
+            t
+        )
     }
 }

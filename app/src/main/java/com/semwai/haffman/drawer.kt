@@ -63,7 +63,7 @@ internal class DrawView(context: Context) : View(context) {
     override fun onDraw(cnv: Canvas) {
         canvas = cnv
         cnv.rotate(90F)
-        cnv.translate(0F,-cnv.width*1.0F)
+        cnv.translate(0F, -cnv.width * 1.0F)
         canvas!!.drawARGB(80, 102, 204, 255)
         /*
         // первая линия
@@ -97,7 +97,7 @@ internal class DrawView(context: Context) : View(context) {
         for (i in 0..100)
         canvas.drawText("hello", 10f, (i*40).toFloat(),p)
         canvas.drawText("width ${canvas.width} height ${canvas.height}", 40f, 40f,p)*/
-        nodeRadius = (width + height) / 36F
+        nodeRadius = (width + height) / 46F
         t.textSize = (width + height) / 88F
 
         /*drawNode("abcde", 15, false, 300F, 200F)
@@ -109,75 +109,73 @@ internal class DrawView(context: Context) : View(context) {
             cnv.drawText(e.toString(), 0F, i, t)
             i += 20
         }
-        createGraph(mlist, height / 2F, 50F)
+        drawNode("start", 0,null, (height / 2F), 50F)
+        createGraph(mlist, (height / 2F), 100F)
 
 
     }
 
-   /* fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float) {
-        val list1 = list.filter { it.second.first() == '1' }
-        val list0 = list.filter { it.second.first() == '0' }
-        val y = y0 + nodeRadius*2.5F
-        if (list1.map { it.first }.isNotEmpty())
-            drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - nodeRadius * 1.3F, y)
-        if (list0.map { it.first }.isNotEmpty())
-            drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + nodeRadius * 1.3F, y)
-        if (list1.size > 1) {
-            try{
-                createGraph(list1.subList(1, list0.size - 1), x0 - nodeRadius * 1.3F, y)
-            }
-            catch (e: Exception){}
+    /* fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float) {
+         val list1 = list.filter { it.second.first() == '1' }
+         val list0 = list.filter { it.second.first() == '0' }
+         val y = y0 + nodeRadius*2.5F
+         if (list1.map { it.first }.isNotEmpty())
+             drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - nodeRadius * 1.3F, y)
+         if (list0.map { it.first }.isNotEmpty())
+             drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + nodeRadius * 1.3F, y)
+         if (list1.size > 1) {
+             try{
+                 createGraph(list1.subList(1, list0.size - 1), x0 - nodeRadius * 1.3F, y)
+             }
+             catch (e: Exception){}
+         }
+         if (list0.size > 1) {
+             try{
+                 createGraph(list0.subList(1, list0.size - 1), x0 + nodeRadius * 1.3F, y)
+             }
+             catch (e: Exception){}
+         }
+
+
+     }*/
+    fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float, k: Float = 3F) {
+        if (list.isEmpty()) {
+            return
         }
-        if (list0.size > 1) {
-            try{
-                createGraph(list0.subList(1, list0.size - 1), x0 + nodeRadius * 1.3F, y)
-            }
-            catch (e: Exception){}
+        val xOffset = nodeRadius * 1.6F
+        val yOffset = nodeRadius * 2F
+        val y = y0 + yOffset
+        val nextK = if (k < 1) k else k / 1.4F
+        val list1 = list.filter { it.second.firstOrNull() == '1' }
+        val list0 = list.filter { it.second.firstOrNull() == '0' }
+
+        if (list1.isNotEmpty()) {
+            drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - k*xOffset, y0)
+            createGraph(list1.map { it.first to it.second.drop(1) }, x0 - k*xOffset, y, nextK)
+            drawEdge(x0, y0 - yOffset, x0 - k*xOffset, y0)
         }
 
+        if (list0.isNotEmpty()) {
+            drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + k*xOffset, y0)
+            createGraph(list0.map { it.first to it.second.drop(1) }, x0 + k*xOffset, y, nextK)
+            drawEdge(x0, y0 - yOffset, x0 + k*xOffset, y0)
+        }
+    }
 
-    }*/
-   fun createGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float) {
-       val y = y0 + nodeRadius*2F
-       if (list.size == 1){
-           drawNode(list.first().first.toString(), 0, false, x0, y0  )
-           return
-       }
-       val list1 = list.filter { it.second.first() == '1' }
-       val list0 = list.filter { it.second.first() == '0' }
-
-
-       if (list1.isNotEmpty()){
-           drawNode(list1.map { it.first }.joinToString(""), 0, true, x0 - nodeRadius * 1.6F, y0)
-           //createGraph(listOf(list1.first()), x0 + nodeRadius * 1.6F, y0)
-           createGraph(list1.dropLast(1), x0 - nodeRadius * 1.6F, y)
-           drawEdge(x0,y0,x0 - nodeRadius * 1.6F, y)
-       }
-
-       if (list0.isNotEmpty()){
-           drawNode(list0.map { it.first }.joinToString(""), 0, false, x0 + nodeRadius * 1.6F, y0)
-           //createGraph(listOf(list0.first()), x0 - nodeRadius * 1.6F, y0)
-           createGraph(list0.dropLast(1), x0 + nodeRadius * 1.6F, y)
-           drawEdge(x0,y0,x0 + nodeRadius * 1.6F, y0)
-
-
-       }
-
-
-
-
-   }
     /*
     рисует отдельную вершину
      */
-    fun drawNode(text: String, weight: Int, point: Boolean, x: Float, y: Float) {
+    fun drawNode(text: String, weight: Int, point: Boolean?, x: Float, y: Float) {
         p.color = Color.BLACK
         canvas!!.drawCircle(x, y, nodeRadius + 2, p)
         p.color = Color.parseColor("#008577")
         canvas!!.drawCircle(x, y, nodeRadius, p)
         canvas!!.drawText(text, x - t.textSize * text.length / 4, y + 4, t)
         //canvas!!.drawText(weight.toString(), x + nodeRadius + 2, y + 4, t)
-        canvas!!.drawText(if (point) "1" else "0", x - nodeRadius - 15, y + 4, t)
+        if (point != null) {
+            canvas!!.drawText(if (point!!) "1" else "0", x - nodeRadius - 15, y + 4, t)
+            }
+
     }
 
     fun drawEdge(x1: Float, y1: Float, x2: Float, y2: Float) {

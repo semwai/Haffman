@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
             myMap.clear()
             val chars = ('a'..'z').toMutableList()
             val numbers = 1..40
-            for (i in  0..10){
+            for (i in  0..5){
                 val l = chars.shuffled().first()
                 chars.remove(l)
                 val c = numbers.shuffled().first()

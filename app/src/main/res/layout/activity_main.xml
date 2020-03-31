@@ -1,52 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
+
     <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
-            android:layout_height="0dp" android:layout_marginEnd="32dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="32dp" android:gravity="center_horizontal"
-            app:layout_constraintHorizontal_bias="1.0" tools:ignore="MissingConstraints"
+            android:layout_height="0dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.0">
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Сгенерировать"
-                android:id="@+id/generator"
-        />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="MissingConstraints">
+
+        <Button
+                android:id="@+id/generatorButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gen" />
 
         <EditText
+                android:id="@+id/inputChar"
                 android:layout_width="128dp"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
                 android:ems="10"
-                android:id="@+id/inputChar" android:hint="Буква" android:maxLength="1" android:maxLines="1"/>
+                android:hint="@string/letter"
+                android:inputType="textPersonName"
+                android:maxLength="1"
+                android:maxLines="1"
+                android:importantForAutofill="no" />
+
         <EditText
+                android:id="@+id/count"
                 android:layout_width="127dp"
                 android:layout_height="49dp"
-                android:inputType="numberDecimal"
                 android:ems="10"
-                android:id="@+id/count" tools:layout_editor_absoluteY="170dp" tools:layout_editor_absoluteX="87dp"
-                android:hint="Количество" android:selectAllOnFocus="false"/>
+                android:hint="@string/count"
+                android:inputType="numberDecimal"
+                android:selectAllOnFocus="false"
+                tools:layout_editor_absoluteX="87dp"
+                tools:layout_editor_absoluteY="170dp"
+                android:importantForAutofill="no" />
+
         <Button
-                android:text="+"
+                android:id="@+id/addButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/button2"/>
+                android:layout_height="wrap_content"
+                android:text="@string/plus" />
+
         <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="184dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                          android:orientation="vertical" android:id="@+id/list"/>
+
+            <LinearLayout
+                    android:id="@+id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
         </ScrollView>
+
         <Button
-                android:text="Нарисовать граф"
+                android:id="@+id/drawButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/drawButton"/>
+                android:layout_height="wrap_content"
+                android:text="@string/draw_graph" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

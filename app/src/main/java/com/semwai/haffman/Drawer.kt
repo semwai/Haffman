@@ -37,7 +37,9 @@ internal class HaffmanDrawerView(context: Context, inputString: String) : View(c
     var nodeRadius = 0F
     lateinit var canvas: Canvas
 
-    private val mainList = Haffman(inputString).values.toList().sortedWith(compareBy { it.second })
+    //Итоговый результат. Сожержит мары вида буква - путь (строка вида 010101).
+    //В дальнейшем при отрисовке, первые элементы будут группироваться по первой букве путя.
+    private val mainList = Haffman(inputString).getPath().toList().sortedWith(compareBy { it.second })
 
     init {
         fill.color = Color.GREEN

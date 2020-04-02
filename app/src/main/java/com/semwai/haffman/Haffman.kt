@@ -26,9 +26,12 @@ class Haffman(str: String) {
     private val inputNodes = mutableListOf<Point>()
 
     /**
-     * Хранит готовую таблицу вида буква - бинарный код
+     * Хранит готовую таблицу вида буква - бинарный код (путь)
      */
-    val values = mutableMapOf<Char, String>()
+    private val values = mutableMapOf<Char, String>()
+
+    //чтобы не нарушать целостности класса и не возвращать MutableMap
+    fun getPath() = values.toMap()
 
     init {
         str.groupBy { it }.map { it.key to it.value.size }.forEach {
@@ -40,17 +43,17 @@ class Haffman(str: String) {
             val p2 = inputNodes.removeAt(0)
             inputNodes.add(HNode(p1, p2))
         }
-        result(inputNodes.first(), "")
+        make(inputNodes.first(), "")
     }
 
-    private fun result(po: Point, path: String): String {
+    private fun make(po: Point, path: String): String {
         if (po is HChar) {
             val c = po.getChars()
             values[c] = path
             return "$c - $path"
         } else {
             with(po as HNode) {
-                return result(po.a, path + "1") + " " + result(po.b, path + "0")
+                return make(po.a, path + "1") + " " + make(po.b, path + "0")
             }
         }
     }

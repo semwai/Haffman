@@ -12,6 +12,9 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+        val myH = Haffman("aaaaaaaabbbc").getPath()
+        assertEquals("11", myH['c'])
+        assertEquals("10", myH['b'])
+        assertEquals("0", myH['a'])
     }
 }

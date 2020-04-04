@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">Haffman</string>
+    <string name="app_name">Код Хаффмана</string>
     <string name="gen">Сгенерировать</string>
     <string name="letter">Буква</string>
     <string name="count">Количество</string>
     <string name="plus">+</string>
+    <string name="need_data">Введите данные</string>
     <string name="draw_graph">Нарисовать граф</string>
 </resources>

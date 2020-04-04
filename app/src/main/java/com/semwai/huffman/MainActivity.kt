@@ -1,4 +1,4 @@
-package com.semwai.haffman
+package com.semwai.huffman
 
 import android.annotation.SuppressLint
 import android.support.v7.app.AppCompatActivity
@@ -6,6 +6,7 @@ import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_main.*
 import android.content.Intent
 import android.widget.Button
+import android.widget.Toast
 import java.lang.StringBuilder
 
 class MainActivity : AppCompatActivity() {
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
             myMap.clear()
             val chars = ('a'..'z').toMutableList()
             val numbers = 1..40
-            for (i in 0..5) {
+            for (i in 0..12) {
                 val l = chars.shuffled().first()
                 chars.remove(l)
                 val c = numbers.shuffled().first()
@@ -43,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                     val t = Button(this)
                     t.text = "${it.first} - ${it.second}"
                     t.setOnClickListener { btn ->
-                        myMap.remove(letter)
+                        myMap.remove(it.first)
                         list.removeView(btn)
                     }
                     list.addView(t)
@@ -53,11 +54,15 @@ class MainActivity : AppCompatActivity() {
         drawButton.setOnClickListener {
             val i = Intent(this, Drawer::class.java)
             val s = StringBuilder()
-            myMap.forEach {
-                s.append("${it.key}".repeat(it.value))
+            if (myMap.isEmpty()){
+                Toast.makeText(this, R.string.need_data, Toast.LENGTH_LONG).show()
+            } else {
+                myMap.forEach {
+                    s.append("${it.key}".repeat(it.value))
+                }
+                i.putExtra("map", s.toString())
+                startActivity(i)
             }
-            i.putExtra("map", s.toString())
-            startActivity(i)
         }
     }
 }

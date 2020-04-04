@@ -1,4 +1,4 @@
-package com.semwai.haffman
+package com.semwai.huffman
 
 import org.junit.Test
 
@@ -12,7 +12,7 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        val myH = Haffman("aaaaaaaabbbc").getPath()
+        val myH = Huffman("aaaaaaaabbbc").getPath()
         assertEquals("11", myH['c'])
         assertEquals("10", myH['b'])
         assertEquals("0", myH['a'])

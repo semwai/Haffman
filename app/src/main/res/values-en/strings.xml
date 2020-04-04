@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Huffman code</string>
+    <string name="gen">Generate</string>
+    <string name="letter">letter</string>
+    <string name="count">count</string>
+    <string name="plus">+</string>
+    <string name="need_data">Need letters for this</string>
+    <string name="draw_graph">Draw graph</string>
+</resources>

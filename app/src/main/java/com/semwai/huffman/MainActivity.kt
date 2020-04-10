@@ -8,59 +8,54 @@ import android.content.Intent
 import android.widget.Button
 import android.widget.Toast
 import java.lang.StringBuilder
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
-    private val myMap = mutableMapOf<Char, Int>()
+    //данный тип можно передать в Intent и не придется делать свой Parcelable\Serializable
+    private val myMap = linkedMapOf<Char, Int>()
+
     @SuppressLint("SetTextI18n")
+    private fun letterButton(i: Char, c: Int): Button {
+        val btn = Button(this)
+        btn.text = "$i - $c"
+        btn.setOnClickListener {
+            myMap.remove(i)
+            list.removeView(btn)
+        }
+        return btn
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         generatorButton.setOnClickListener {
             list.removeAllViews()
             myMap.clear()
-            val chars = ('a'..'z').toMutableList()
-            val numbers = 1..40
-            for (i in 0..12) {
-                val l = chars.shuffled().first()
-                chars.remove(l)
-                val c = numbers.shuffled().first()
-                myMap[l] = c
-                val t = Button(this)
-                t.text = "$l - $c"
-                t.setOnClickListener { btn ->
-                    myMap.remove(l)
-                    list.removeView(btn)
-                }
-                list.addView(t)
+            val chars = ('a'..'z')
+            for (i in chars) {
+                val c = Random.nextInt(5, 500)
+                myMap[i] = c
+                list.addView(letterButton(i,c))
             }
         }
         addButton.setOnClickListener {
             val letter = inputChar.text.firstOrNull()
             if (letter != null) {
                 myMap[letter] =
-                    myMap.getOrDefault(letter, 0) + (count.text.toString().toIntOrNull() ?: 0)
+                    myMap.getOrDefault(letter, 1) + (count.text.toString().toIntOrNull() ?: 0)
                 list.removeAllViews()
                 myMap.toList().reversed().forEach {
-                    val t = Button(this)
-                    t.text = "${it.first} - ${it.second}"
-                    t.setOnClickListener { btn ->
-                        myMap.remove(it.first)
-                        list.removeView(btn)
-                    }
-                    list.addView(t)
+                    list.addView(letterButton(it.first,it.second))
                 }
             }
         }
         drawButton.setOnClickListener {
             val i = Intent(this, Drawer::class.java)
-            val s = StringBuilder()
-            if (myMap.isEmpty()){
+
+            if (myMap.size < 2) {
                 Toast.makeText(this, R.string.need_data, Toast.LENGTH_LONG).show()
             } else {
-                myMap.forEach {
-                    s.append("${it.key}".repeat(it.value))
-                }
-                i.putExtra("map", s.toString())
+                i.putExtra("map", myMap)
                 startActivity(i)
             }
         }

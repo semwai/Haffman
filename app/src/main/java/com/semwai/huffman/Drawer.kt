@@ -5,14 +5,18 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_draw.*
+import kotlin.collections.HashMap
 import kotlin.math.*
+import kotlin.system.exitProcess
 
 
 class Drawer : AppCompatActivity() {
@@ -20,35 +24,29 @@ class Drawer : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val i = intent
-
-        val mainList =
-            Huffman(i.getStringExtra("map")).getPath().toList().sortedWith(compareBy { it.second })
-
+        val serValue = i.getSerializableExtra("map")
+        if (serValue == null) {
+            Toast.makeText(this, "ERROR", Toast.LENGTH_LONG).show()
+            exitProcess(-1)
+        }
+        val hfm = Huffman(serValue as HashMap<Char, Int>)
         setContentView(R.layout.activity_draw)
-
         //боковой текст с готовыми значениями
-        for (e in mainList) {
+        for (e in hfm.getPath()) {
             val tv = TextView(this).apply {
-                text = "${e.first}\t-\t${e.second}"
+                text = "${e.key}\t-\t${e.value}"
+                typeface = Typeface.MONOSPACE
             }
             lv1.addView(tv)
         }
-
-        val hdv = HaffmanDrawerView(this, mainList)
+        val hdv = HaffmanDrawerView(this, hfm)
         lay.addView(hdv)
-
-        buttonMinus.setOnClickListener {
-            hdv.addScale(-0.1F)
-        }
-        buttonPlus.setOnClickListener {
-            hdv.addScale(0.1F)
-        }
     }
 }
 
 
 @SuppressLint("ViewConstructor")
-private class HaffmanDrawerView(context: Context, val mainList: List<Pair<Char, String>>) :
+private class HaffmanDrawerView(context: Context, val root: Huffman) :
     View(context) {
     //2 переменные хранят в себе цвета и другие свойства для отрисовки графисеских примитивов
     var fill = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -57,9 +55,9 @@ private class HaffmanDrawerView(context: Context, val mainList: List<Pair<Char, 
     lateinit var canvas: Canvas
     private var xOffset = 0.0F
     private var yOffset = 0.0F
-    private var scale = 1.0F
-    private val mScaleGestureDetector =
-        ScaleGestureDetector.SimpleOnScaleGestureListener()
+    private var scale = 1F
+    //Расстояния между нодами
+    private val widthMap = offsetMaster(root.getRootNode())
 
     init {
         fill.color = Color.GREEN
@@ -67,58 +65,49 @@ private class HaffmanDrawerView(context: Context, val mainList: List<Pair<Char, 
         stroke.color = Color.BLACK
     }
 
+
     override fun onDraw(cnv: Canvas) {
-        //поворот и координатное преобразование. Так более оптимально представляется граф.
         canvas = cnv
-        canvas.rotate(90F)
-        canvas.translate(-width * (scale - 1) - xOffset, -width * 1F - yOffset)
+        canvas.translate(-xOffset, yOffset)
         canvas.scale(scale, scale)
-        //canvas.drawARGB(80, 102, 204, 255)
+        canvas.drawARGB(255, 102, 204, 255)
         //попытка сделать отрисовку адаптивной.
         nodeRadius = (width + height) / 46F
         stroke.textSize = (width + height) / 88F
         //начинаем отрисовывать граф.
-        drawNode("start", null, (height / 2F), -2 * nodeRadius)
-        drawGraph(mainList, (height / 2F), 0F)
+        drawNode("start", null, width / 2f, 0f)
+        drawGraph(root.getRootNode(), width / 2f, 0f)
     }
 
-    /***
-     *
-     */
-    private fun drawGraph(list: List<Pair<Char, String>>, x0: Float, y0: Float, k: Float = 8F) {
-        if (list.isEmpty()) {
-            return
-        }
-        val xOffset = nodeRadius * 1.6F
-        val yOffset = nodeRadius * 2.2F
-        val y = y0 + yOffset
-        //Данный коэффициент влияет на расстояние между соседними элементами.
-        //Чем дальше граф идет вниз, тем меньше потомков у детей.
-        //Им не нужно большое расстояние между ними.
-        val nextK = if (k <= 2) 1F else k / 2F
-        //Разделяю на 2 группы, одна пойдет налево, вторая - направо.
-        val list1 = list.filter { it.second.firstOrNull() == '1' }
-        val list0 = list.filter { it.second.firstOrNull() == '0' }
-        if (list1.isNotEmpty()) {
-            drawNode(list1.map { it.first }.joinToString(""), true, x0 - k * xOffset, y0)
-            drawGraph(list1.map { it.first to it.second.drop(1) }, x0 - k * xOffset, y, nextK)
-            drawEdge(x0, y0 - yOffset, x0 - k * xOffset, y0)
-        }
-        if (list0.isNotEmpty()) {
-            drawNode(list0.map { it.first }.joinToString(""), false, x0 + k * xOffset, y0)
-            drawGraph(list0.map { it.first to it.second.drop(1) }, x0 + k * xOffset, y, nextK)
-            drawEdge(x0, y0 - yOffset, x0 + k * xOffset, y0)
+    private fun drawGraph(element: Huffman.Point, x0: Float, y0: Float) {
+        val rX = nodeRadius * 1.5f
+        val rY = nodeRadius * 2.0f
+        if (element is Huffman.HChar) {
+            drawNode(element.chars, null, x0, y0)
+        } else {
+            with(element as Huffman.HNode) {
+                val (aX, aY) = widthMap[a.chars] ?: error("")
+                val (bX, bY) = widthMap[b.chars] ?: error("")
+                drawNode(a.chars, true, x0 - aX * rX, y0 + aY * rY)
+                drawEdge(x0, y0, x0 - aX * rX, y0 + aY * rY)
+
+                drawNode(b.chars, false, x0 + bX * rX, y0 + bY * rY)
+                drawEdge(x0, y0, x0 + bX * rX, y0 + bY * rY)
+
+                drawGraph(a, x0 - aX * rX, y0 + aY * rY)
+                drawGraph(b, x0 + bX * rX, y0 + bY * rY)
+            }
         }
     }
 
     /***
-     *
      * @text - буква или набор букв, если это не конечная точка.
      * @x - смещение по X
      * @y - смещение по Y
-     * @dir? - флаг, определяющий какой бит принаджежит данной букве, 0 или 1. Если значение = null, то это не конечный элемент.
+     * @dir? - флаг, показывающий в какую сторону пошла данная ветка. Если null - то это конечный элемент
      */
     private fun drawNode(text: String, dir: Boolean?, x: Float, y: Float) {
+
         fill.color = Color.BLACK
         canvas.drawCircle(x, y, nodeRadius + 2, fill)
         fill.color = Color.parseColor("#008577")
@@ -143,49 +132,54 @@ private class HaffmanDrawerView(context: Context, val mainList: List<Pair<Char, 
         )
     }
 
-    fun addScale(delta: Float) {
-        if (scale > -delta && scale < 2 - delta) {
-            scale += delta
-            this.invalidate()
-        }
-    }
-
     private var startX = 0.0f
     private var startY = 0.0f
-    private var dX = 0.0f
-    private var dY = 0.0f
-    private var tapCount = 0
+    private var isDown = false
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_MOVE -> {
-                if (tapCount == 1) {
-                    //Х поменяно на У, т.к данный график перевернут на 90 градусов
-                    val qX = (startY - event.y)
-                    val qY = (startX - event.x)
-                    if (abs(dX.toInt() - qX) > 1.0 && abs(dY - qY) > 1.0) {
-                        dX = qX
-                        dY = qY
-                        xOffset += (dX) / (10 * scale)
-                        yOffset += -(dY) / (10 * scale)
-                    }
+                if (isDown) {
+
+                    xOffset += (startX - event.x)
+                    yOffset += -(startY - event.y)
+                    //}
+                    startX = event.x
+                    startY = event.y
                 }
             }
             MotionEvent.ACTION_DOWN -> {
-                if (tapCount == 0) {
-                    tapCount++
+                if (!isDown) {
+                    isDown = true
                     startX = event.x
                     startY = event.y
                 }
             }
             MotionEvent.ACTION_UP -> {
-                if (tapCount == 1)
-                    tapCount = 0
+                if (isDown)
+                    isDown = false
             }
         }
-        //перерисовка после сдвиги
+        mScaleDetector.onTouchEvent(event)
+        //перерисовка после сдвигов
         invalidate()
         //если иначе, то не работает move
         return true//super.onTouchEvent(event)
     }
 
+    private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        val minScale = 0.1f
+        val maxScale = 4.0f
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            scale *= detector.scaleFactor
+            if (scale in minScale..maxScale) {
+                xOffset *= detector.scaleFactor
+                yOffset *= detector.scaleFactor
+            }
+            //Ограничиваем масштабирование
+            scale = max(minScale, min(scale, maxScale))
+            return true
+        }
+    }
+    private val mScaleDetector = ScaleGestureDetector(context, scaleListener)
 }
+

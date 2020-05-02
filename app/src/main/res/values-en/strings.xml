@@ -7,4 +7,5 @@
     <string name="plus">+</string>
     <string name="need_data">Need letters for this</string>
     <string name="draw_graph">Draw graph</string>
+    <string name="lv1isVisible">Close panel</string>
 </resources>

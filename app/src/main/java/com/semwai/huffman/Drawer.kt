@@ -1,28 +1,41 @@
 package com.semwai.huffman
 
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.opengl.Visibility
 import android.os.Bundle
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_draw.*
-import kotlin.collections.HashMap
-import kotlin.math.*
+import kotlinx.android.synthetic.main.switch_layout.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.system.exitProcess
 
 
 class Drawer : AppCompatActivity() {
+
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        supportActionBar?.setCustomView(R.layout.switch_layout)
+        supportActionBar?.setDisplayShowCustomEnabled(true)
+        switchForActionBar.setOnClickListener {
+            lv1.visibility = if (lv1.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+
+
         val i = intent
         val serValue = i.getSerializableExtra("map")
         if (serValue == null) {
@@ -46,18 +59,13 @@ class Drawer : AppCompatActivity() {
 
 
 @SuppressLint("ViewConstructor")
-private class HaffmanDrawerView(context: Context, val root: Huffman) :
-    View(context) {
+private class HaffmanDrawerView(context: Context, val root: Huffman) : ScaleCanvas(context) {
     //2 переменные хранят в себе цвета и другие свойства для отрисовки графисеских примитивов
     var fill = Paint(Paint.ANTI_ALIAS_FLAG)
     var stroke = Paint(Paint.ANTI_ALIAS_FLAG)
     var nodeRadius = 0F
-    lateinit var canvas: Canvas
-    private var xOffset = 0.0F
-    private var yOffset = 0.0F
-    private var scale = 1F
     //Расстояния между нодами
-    private val widthMap = offsetMaster(root.getRootNode())
+    private val widthMap = offsetMaster(root.rootNode)
 
     init {
         fill.color = Color.GREEN
@@ -67,16 +75,14 @@ private class HaffmanDrawerView(context: Context, val root: Huffman) :
 
 
     override fun onDraw(cnv: Canvas) {
-        canvas = cnv
-        canvas.translate(-xOffset, yOffset)
-        canvas.scale(scale, scale)
+        super.onDraw(cnv)
         canvas.drawARGB(255, 102, 204, 255)
-        //попытка сделать отрисовку адаптивной.
-        nodeRadius = (width + height) / 46F
-        stroke.textSize = (width + height) / 88F
+        nodeRadius = 25f
+        stroke.textSize = 10f
         //начинаем отрисовывать граф.
         drawNode("start", null, width / 2f, 0f)
-        drawGraph(root.getRootNode(), width / 2f, 0f)
+        drawGraph(root.rootNode, width / 2f, 0f)
+
     }
 
     private fun drawGraph(element: Huffman.Point, x0: Float, y0: Float) {
@@ -131,55 +137,5 @@ private class HaffmanDrawerView(context: Context, val root: Huffman) :
             stroke
         )
     }
-
-    private var startX = 0.0f
-    private var startY = 0.0f
-    private var isDown = false
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action) {
-            MotionEvent.ACTION_MOVE -> {
-                if (isDown) {
-
-                    xOffset += (startX - event.x)
-                    yOffset += -(startY - event.y)
-                    //}
-                    startX = event.x
-                    startY = event.y
-                }
-            }
-            MotionEvent.ACTION_DOWN -> {
-                if (!isDown) {
-                    isDown = true
-                    startX = event.x
-                    startY = event.y
-                }
-            }
-            MotionEvent.ACTION_UP -> {
-                if (isDown)
-                    isDown = false
-            }
-        }
-        mScaleDetector.onTouchEvent(event)
-        //перерисовка после сдвигов
-        invalidate()
-        //если иначе, то не работает move
-        return true//super.onTouchEvent(event)
-    }
-
-    private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        val minScale = 0.1f
-        val maxScale = 4.0f
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            scale *= detector.scaleFactor
-            if (scale in minScale..maxScale) {
-                xOffset *= detector.scaleFactor
-                yOffset *= detector.scaleFactor
-            }
-            //Ограничиваем масштабирование
-            scale = max(minScale, min(scale, maxScale))
-            return true
-        }
-    }
-    private val mScaleDetector = ScaleGestureDetector(context, scaleListener)
 }
 

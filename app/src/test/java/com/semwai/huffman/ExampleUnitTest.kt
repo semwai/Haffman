@@ -21,7 +21,7 @@ class ExampleUnitTest {
     fun offsetTest1(){
         val myH = Huffman(mapOf('a' to 5, 'b' to 3, 'c' to 1))
         println(myH.getPath())
-        val w = offsetMaster(myH.getRootNode())
+        val w = offsetMaster(myH.rootNode)
         for (i in w)
             println(i)
         assertEquals(1f to 1f, w["a"])

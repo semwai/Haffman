@@ -6,4 +6,5 @@
     <string name="plus">+</string>
     <string name="need_data">Введите данные</string>
     <string name="draw_graph">Нарисовать граф</string>
+    <string name="lv1isVisible">Скрыть панель</string>
 </resources>

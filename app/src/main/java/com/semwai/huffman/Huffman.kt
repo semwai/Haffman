@@ -21,8 +21,6 @@ class Huffman(input: Map<Char, Int>) {
         override fun toString() = "$chars - $weight"
     }
 
-    //входные ноды
-     private val inputNodes = PriorityQueue<Point>(Comparator { o1, o2 -> o1.weight - o2.weight })
 
     /**
      * Хранит готовую таблицу вида буква - бинарный код (путь)
@@ -32,20 +30,20 @@ class Huffman(input: Map<Char, Int>) {
     //чтобы не нарушать целостности класса и не возвращать MutableMap
     fun getPath() : Map<Char, String> = values
 
-    fun getRootNode(): HNode = inputNodes.first() as HNode
+    lateinit var rootNode: HNode
 
     init {
+        val inputNodes = PriorityQueue<Point>(Comparator { o1, o2 -> o1.weight - o2.weight })
         input.forEach {
             inputNodes.add(HChar(it.key, it.value))
         }
         while (inputNodes.size > 1) {
-            val p1 = inputNodes.first()
-            inputNodes.remove(p1)
-            val p2 = inputNodes.first()
-            inputNodes.remove(p2)
+            val p1 = inputNodes.poll()
+            val p2 = inputNodes.poll()
             inputNodes.add(HNode(p1, p2))
         }
         make(inputNodes.first())
+        rootNode = inputNodes.first() as HNode
     }
 
     private fun make(po: Point, path: String = "") {

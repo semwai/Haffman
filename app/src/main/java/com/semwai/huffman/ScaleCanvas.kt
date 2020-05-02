@@ -21,15 +21,7 @@ open class ScaleCanvas(context: Context) : View(context) {
     override fun onDraw(cnv: Canvas) {
         canvas = cnv
         canvas.translate(-xOffset, -yOffset)
-        //Log.v("xOffset", xOffset.toString())
         canvas.scale(scale, scale)
-
-        //val ar = floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
-        //canvas.matrix.getValues(ar)
-        //Log.v("ar", "1\n\n" + ar.map { "$it " }.chunked(3).joinToString("\n"))
-
-        //matrix.postScale(2f, 2f)
-        //matrix.reset()
     }
 
     private var startX = 0.0f
@@ -42,23 +34,22 @@ open class ScaleCanvas(context: Context) : View(context) {
         if (!isScaleProcess)
             when (event?.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
-                    if (event.getPointerId(event.actionIndex) == 0)
-                            xOffset += (startX - event.x)
-                            yOffset += (startY - event.y)
-                            startX = event.x
-                            startY = event.y
+                    if (event.getPointerId(event.actionIndex) == 0) {
+                        xOffset += (startX - event.x)
+                        yOffset += (startY - event.y)
+                        startX = event.x
+                        startY = event.y
+                    }
                     //event.pointerCount
                     //event.getPointerId(event.poi)
                 }
                 //actionpointerdown\up - не первый палец поднимается, отпускается. есть id
-                MotionEvent.ACTION_DOWN ->{
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                     touchCounter++
                     startX = event.x
                     startY = event.y
-
-
                 }
-                MotionEvent.ACTION_UP -> {
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                     touchCounter--
                 }
             }
@@ -70,17 +61,19 @@ open class ScaleCanvas(context: Context) : View(context) {
     }
 
     private val scaleListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
         val minScale = 0.1f
         val maxScale = 4.0f
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            if (detector.scaleFactor > 1 && scale * detector.scaleFactor < maxScale || detector.scaleFactor < 1 && scale * detector.scaleFactor > minScale) {
-                scale *= detector.scaleFactor
-                //xOffset *= detector.scaleFactor
-                //yOffset *= detector.scaleFactor
-                xOffset = (xOffset + detector.focusX) / scale
-                //yOffset = (yOffset + detector.focusY) / scale
+            val newScale = scale * detector.scaleFactor
+            if (newScale in minScale..maxScale) {
+                scale = newScale
+                //мне кажется я решил проблему не совсем как вы предложили, но это вполне работает
+                xOffset =
+                    xOffset * detector.scaleFactor + detector.focusX * (detector.scaleFactor - 1)
+                yOffset =
+                    yOffset * detector.scaleFactor + detector.focusY * (detector.scaleFactor - 1)
             }
-
             return true
         }
 

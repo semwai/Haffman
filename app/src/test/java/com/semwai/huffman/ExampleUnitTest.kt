@@ -12,10 +12,10 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun huffTest1() {
-        val myH = Huffman(mapOf('a' to 5, 'b' to 3, 'c' to 1)).getPath()
-        assertEquals("11", myH['c'])
-        assertEquals("10", myH['b'])
-        assertEquals("0", myH['a'])
+        val myH = Huffman(mapOf('A' to 15, 'B' to 7, 'C' to 6, 'D' to 6, 'E' to 5)).getPath()
+        assertEquals("1", myH['A'])
+        assertEquals("000", myH['B'])
+        assertEquals("011", myH['E'])
     }
     @Test
     fun offsetTest1(){

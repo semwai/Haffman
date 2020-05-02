@@ -28,7 +28,7 @@ class Huffman(input: Map<Char, Int>) {
     private val values = mutableMapOf<Char, String>()
 
     //чтобы не нарушать целостности класса и не возвращать MutableMap
-    fun getPath() : Map<Char, String> = values
+    fun getPath(): Map<Char, String> = values
 
     lateinit var rootNode: HNode
 

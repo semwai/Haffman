@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
             for (i in chars) {
                 val c = Random.nextInt(5, 500)
                 myMap[i] = c
-                list.addView(letterButton(i,c))
+                list.addView(letterButton(i, c))
             }
         }
         addButton.setOnClickListener {
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                     myMap.getOrDefault(letter, 1) + (count.text.toString().toIntOrNull() ?: 0)
                 list.removeAllViews()
                 myMap.toList().reversed().forEach {
-                    list.addView(letterButton(it.first,it.second))
+                    list.addView(letterButton(it.first, it.second))
                 }
             }
         }

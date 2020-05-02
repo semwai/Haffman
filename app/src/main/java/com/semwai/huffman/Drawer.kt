@@ -24,17 +24,14 @@ import kotlin.system.exitProcess
 
 class Drawer : AppCompatActivity() {
 
-
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         supportActionBar?.setCustomView(R.layout.switch_layout)
         supportActionBar?.setDisplayShowCustomEnabled(true)
         switchForActionBar.setOnClickListener {
             lv1.visibility = if (lv1.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-
 
         val i = intent
         val serValue = i.getSerializableExtra("map")
@@ -64,6 +61,7 @@ private class HaffmanDrawerView(context: Context, val root: Huffman) : ScaleCanv
     var fill = Paint(Paint.ANTI_ALIAS_FLAG)
     var stroke = Paint(Paint.ANTI_ALIAS_FLAG)
     var nodeRadius = 0F
+
     //Расстояния между нодами
     private val widthMap = offsetMaster(root.rootNode)
 
@@ -73,10 +71,17 @@ private class HaffmanDrawerView(context: Context, val root: Huffman) : ScaleCanv
         stroke.color = Color.BLACK
     }
 
-
+    @SuppressLint("DrawAllocation")
     override fun onDraw(cnv: Canvas) {
         super.onDraw(cnv)
-        canvas.drawARGB(255, 102, 204, 255)
+        canvas.drawARGB(200, 102, 204, 255)
+        canvas.drawRect(-1005f, -505f, 2005f, 2505f, Paint().apply { color = Color.rgb(0, 0, 0) })
+        canvas.drawRect(
+            -1000f,
+            -500f,
+            2000f,
+            2500f,
+            Paint().apply { color = Color.rgb(102, 204, 255) })
         nodeRadius = 25f
         stroke.textSize = 10f
         //начинаем отрисовывать граф.

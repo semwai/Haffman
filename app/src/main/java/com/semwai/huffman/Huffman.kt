@@ -30,7 +30,7 @@ class Huffman(input: Map<Char, Int>) {
     //чтобы не нарушать целостности класса и не возвращать MutableMap
     fun getPath(): Map<Char, String> = values
 
-    lateinit var rootNode: HNode
+    var rootNode: HNode
 
     init {
         val inputNodes = PriorityQueue<Point>(Comparator { o1, o2 -> o1.weight - o2.weight })

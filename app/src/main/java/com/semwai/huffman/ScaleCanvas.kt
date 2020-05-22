@@ -1,16 +1,14 @@
 package com.semwai.huffman
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Matrix
-import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import kotlin.concurrent.thread
 
 
-@SuppressLint("ViewConstructor")
+
 open class ScaleCanvas(context: Context) : View(context) {
 
     private var xOffset = 0.0F
@@ -24,30 +22,29 @@ open class ScaleCanvas(context: Context) : View(context) {
         canvas.scale(scale, scale)
     }
 
-    private var startX = 0.0f
-    private var startY = 0.0f
+    private var startX = mutableMapOf<Int, Float>()
+    private var startY = mutableMapOf<Int, Float>()
     private var touchCounter = 0
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         mScaleDetector.onTouchEvent(event)
 
+        val fingerIndex = event?.actionIndex ?: 0
+        val fingerId = event?.getPointerId(fingerIndex) ?: 0
 
         if (!isScaleProcess)
             when (event?.actionMasked) {
                 MotionEvent.ACTION_MOVE -> {
-                    if (event.getPointerId(event.actionIndex) == 0) {
-                        xOffset += (startX - event.x)
-                        yOffset += (startY - event.y)
-                        startX = event.x
-                        startY = event.y
-                    }
-                    //event.pointerCount
-                    //event.getPointerId(event.poi)
+                    val egx = event.getX(fingerIndex)
+                    val egy = event.getY(fingerIndex)
+                    xOffset += (startX[fingerId]?:egx) - egx
+                    yOffset += (startY[fingerId]?:egy) - egy
+                    startX[fingerId] = egx
+                    startY[fingerId] = egy
                 }
-                //actionpointerdown\up - не первый палец поднимается, отпускается. есть id
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
                     touchCounter++
-                    startX = event.x
-                    startY = event.y
+                    startX[fingerId] = event.getX(fingerIndex)
+                    startY[fingerId] = event.getY(fingerIndex)
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                     touchCounter--
@@ -84,7 +81,11 @@ open class ScaleCanvas(context: Context) : View(context) {
 
         override fun onScaleEnd(detector: ScaleGestureDetector?) {
             super.onScaleEnd(detector)
-            isScaleProcess = false
+            //позволяет убрать лишнее поддергивание после окончания скейлинга.
+            thread {
+                Thread.sleep(50)
+                isScaleProcess = false
+            }
         }
     }
     private val mScaleDetector = ScaleGestureDetector(context, scaleListener)

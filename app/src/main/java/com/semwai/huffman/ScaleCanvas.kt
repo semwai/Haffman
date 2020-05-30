@@ -31,13 +31,12 @@ open class ScaleCanvas(context: Context) : View(context) {
                 val egy = event.y
                 xOffset += (startX[fingerId] ?: egx) - egx
                 yOffset += (startY[fingerId] ?: egy) - egy
-                startX[fingerId] = egx
-                startY[fingerId] = egy
             }
         }
         for (i in 0 until event.pointerCount) {
-            startX[i] = event.getX(i)
-            startY[i] = event.getY(i)
+            val id = event.getPointerId(i)
+            startX[id] = event.getX(i)
+            startY[id] = event.getY(i)
         }
         //перерисовка после сдвигов
         invalidate()
